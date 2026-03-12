@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lector inventario</title>
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <style>
+    body { font-family: sans-serif; text-align:center; }
+    #reader { width: 300px; margin: 20px auto; }
+  </style>
+</head>
+<body>
+  <h3>Escanear código</h3>
+  <div id="reader"></div>
+  <p id="status"></p>
+
+  <script>
+    const SCRIPT_URL = 'URL_DE_TU_WEBAPP_APPS_SCRIPT';
+
+    function sendToSheet(code) {
+      document.getElementById('status').textContent = 'Enviando...';
+      fetch(SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code })
+      }).then(() => {
+        document.getElementById('status').textContent = 'Guardado: ' + code;
+      }).catch(err => {
+        document.getElementById('status').textContent = 'Error al enviar';
+        console.error(err);
+      });
+    }
+
+    function onScanSuccess(decodedText, decodedResult) {
+      sendToSheet(decodedText);
+    }
+
+    const html5QrcodeScanner = new Html5QrcodeScanner(
+      "reader",
+      { fps: 10, qrbox: {width: 250, height: 250} }
+    );
+    html5QrcodeScanner.render(onScanSuccess);
+  </script>
+</body>
+</html>
